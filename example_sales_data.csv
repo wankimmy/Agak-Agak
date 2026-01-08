@@ -1,0 +1,7 @@
+sale_date,product_sku,store_name,price,quantity
+2024-01-01,PROD-001,Store A,29.99,5
+2024-01-02,PROD-002,Store B,49.99,3
+2024-01-03,PROD-001,Store A,29.99,8
+2024-01-04,PROD-003,Store C,19.99,10
+2024-01-05,PROD-002,Store B,49.99,2
+

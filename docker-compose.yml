@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sales_forecast_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: sales_forecast
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - sales_forecast_network
+
+  laravel:
+    build:
+      context: ./laravel
+      dockerfile: Dockerfile
+    container_name: sales_forecast_laravel
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./laravel:/var/www/html
+      - ./laravel/storage:/var/www/html/storage
+    ports:
+      - "8000:8000"
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: sales_forecast
+      DB_USERNAME: laravel
+      DB_PASSWORD: laravel
+      FORECAST_API_URL: http://python-forecast:8001
+      TIMEGPT_API_KEY: ${TIMEGPT_API_KEY:-}
+    depends_on:
+      - mysql
+    networks:
+      - sales_forecast_network
+
+  python-forecast:
+    build:
+      context: ./python-forecast
+      dockerfile: Dockerfile
+    container_name: sales_forecast_python
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      TIMEGPT_API_KEY: ${TIMEGPT_API_KEY:-}
+    networks:
+      - sales_forecast_network
+
+volumes:
+  mysql_data:
+
+networks:
+  sales_forecast_network:
+    driver: bridge
+
